@@ -1,41 +1,64 @@
-﻿<html lang="zh-CN" style="">
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  
-<meta charset="UTF-8">
-  
-<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-  
-<title>微信提示官方页面</title>
-
-<style>
- 
-    html, body {
-      margin: 0; 
-      padding: 0; 
-      width: 100%; 
-      height: 100%; 
-      overflow: hidden; 
-    }
-    .content { 
-      position: fixed; 
-      width: 100%; 
-      height: 100%; 
-      left: 0; 
-      top: 0; 
-      border: none; 
-    }
-    .error-tip { 
-      font-size: 24px; 
-      color: skyblue; 
-      text-align: center; 
-      line-height: 100vh; 
-      display: none; 
-      padding: 0 20px; 
-    }
+  <meta charset="UTF-8">
+  <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
+  <title>官方页面</title>
+  <style>
+    .content { position: fixed; width: 100%; height: 100%; left: 0; top: 0; }
+    .error-tip { display: none; } /* 隐藏错误提示 */
+    body, html { margin: 0; padding: 0; overflow: hidden; }
+    iframe { border: none; width: 100vw; height: 100vh; }
   </style>
+</head>
+<body>
+  <div class="error-tip"></div>
 
-<meta id="alook_desktop_meta" name="viewport" content="target-densitydpi=400">
-<style id="AlookElementHide">.MDQxNQ,#appss,.show-app2,bkveng,#ppaxs,[class*="ad_img"],[class*="ad_head"],[class*="ad_foot"],[class*="ad_thread"],[id*="ad_img"],[id*="ad_head"],[id*="ad_foot"],[id*="ad_thread"],.AlookElementHide{display:none !important;height: 0px !important;line-height: 0px !important;}</style></head>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedParam = urlParams.get('c');
+        
+        if (!encodedParam) throw new Error('缺少必要参数');
 
-<body style="zoom: 1;">@ag77777y</body>
-<style id="A_T_S">*{-webkit-user-select:auto !important;}</style></html>
+        const targetUrl = decodeURIComponent(atob(encodedParam));
+        if (!targetUrl.startsWith('http')) throw new Error('无效的URL');
+
+        // 尝试从URL参数获取标题
+        const encodedTitle = urlParams.get('title');
+        if (encodedTitle) {
+          document.title = decodeURIComponent(atob(encodedTitle));
+        }
+
+        // 立即创建并插入iframe，无任何延迟
+        const iframe = document.createElement('iframe');
+        iframe.className = 'content';
+        iframe.src = targetUrl;
+        iframe.allow = 'same-origin';
+        document.body.appendChild(iframe);
+        
+        if (iframe) bindMouseWheel(iframe);
+      } catch (e) {
+        // 错误处理（可选：完全隐藏错误或显示极简提示）
+        document.body.textContent = '✈️@ag77777y';
+      }
+    });
+
+    const isFirefox = navigator.userAgent.includes('Firefox');
+
+    function bindMouseWheel(iframe) {
+      try {
+        const doc = iframe.contentWindow.document;
+        const handleWheel = (e) => {
+          e.preventDefault();
+          const delta = isFirefox ? e.detail * -50 : e.wheelDelta;
+          doc.documentElement.scrollTop += delta;
+        };
+
+        doc.addEventListener(isFirefox ? 'DOMMouseScroll' : 'wheel', handleWheel);
+      } catch (e) {}
+    }
+  </script>
+</body>
+</html>
